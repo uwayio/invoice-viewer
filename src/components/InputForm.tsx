@@ -1,5 +1,5 @@
 import React from 'react';
-import { RefreshCw, FileDown, Copy } from 'lucide-react';
+import { RefreshCw, FileDown, Copy, Loader2 } from 'lucide-react';
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -226,8 +226,12 @@ export const InputForm: React.FC<InputFormProps> = ({
           disabled={isExporting}
           className="w-full"
         >
-          <FileDown className="h-4 w-4 mr-2" />
-          匯出 PDF
+          {isExporting ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <FileDown className="h-4 w-4 mr-2" />
+          )}
+          {isExporting ? '處理中...' : '匯出 PDF'}
         </Button>
         <Button
           onClick={onCopyToClipboard}
@@ -235,8 +239,12 @@ export const InputForm: React.FC<InputFormProps> = ({
           variant="outline"
           className="w-full"
         >
-          <Copy className="h-4 w-4 mr-2" />
-          複製到剪貼簿
+          {isExporting ? (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          ) : (
+            <Copy className="h-4 w-4 mr-2" />
+          )}
+          {isExporting ? '處理中...' : '複製到剪貼簿'}
         </Button>
       </div>
     </div>

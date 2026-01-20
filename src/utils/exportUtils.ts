@@ -1,15 +1,21 @@
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 import jsPDF from 'jspdf';
 
 export async function exportToPdf(element: HTMLElement, filename: string = 'invoice.pdf'): Promise<void> {
-  const canvas = await html2canvas(element, {
-    scale: 2,
-    useCORS: true,
-    logging: false,
+  console.log('exportToPdf: starting...');
+  const imgData = await toPng(element, {
+    pixelRatio: 2,
     backgroundColor: '#ffffff',
   });
+  console.log('exportToPdf: image created');
 
-  const imgData = canvas.toDataURL('image/png');
+  // Load image to get dimensions
+  const img = new Image();
+  await new Promise<void>((resolve) => {
+    img.onload = () => resolve();
+    img.src = imgData;
+  });
+
   const pdf = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -19,8 +25,8 @@ export async function exportToPdf(element: HTMLElement, filename: string = 'invo
   const pdfWidth = pdf.internal.pageSize.getWidth();
   const pdfHeight = pdf.internal.pageSize.getHeight();
 
-  const imgWidth = canvas.width;
-  const imgHeight = canvas.height;
+  const imgWidth = img.width;
+  const imgHeight = img.height;
 
   // Calculate scaling to fit the page while maintaining aspect ratio
   const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
@@ -35,37 +41,51 @@ export async function exportToPdf(element: HTMLElement, filename: string = 'invo
   pdf.save(filename);
 }
 
-export async function copyToClipboard(element: HTMLElement): Promise<boolean> {
+export async function copyToClipboard(element: HTMLElement): Promise<'copied' | 'downloaded' | false> {
   try {
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
+    console.log('copyToClipboard: starting...');
+    const dataUrl = await toPng(element, {
+      pixelRatio: 2,
       backgroundColor: '#ffffff',
     });
+    console.log('copyToClipboard: image created');
 
-    return new Promise((resolve) => {
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          resolve(false);
-          return;
-        }
+    // Convert data URL to blob
+    const response = await fetch(dataUrl);
+    const blob = await response.blob();
 
-        try {
-          await navigator.clipboard.write([
-            new ClipboardItem({
-              'image/png': blob,
-            }),
-          ]);
-          resolve(true);
-        } catch (err) {
-          console.error('Failed to copy to clipboard:', err);
-          resolve(false);
-        }
-      }, 'image/png');
-    });
+    // Try modern Clipboard API first
+    if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) {
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({
+            'image/png': blob,
+          }),
+        ]);
+        return 'copied';
+      } catch (err) {
+        console.warn('Clipboard API failed, trying fallback:', err);
+      }
+    }
+
+    // Fallback: Download as PNG file
+    try {
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `invoice-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+      return 'downloaded';
+    } catch (err) {
+      console.warn('Download fallback failed:', err);
+    }
+
+    return false;
   } catch (err) {
-    console.error('Failed to render canvas:', err);
+    console.error('Failed to render image:', err);
     return false;
   }
 }

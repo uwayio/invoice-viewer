@@ -2,7 +2,6 @@ import { useState, useRef, useCallback } from "react";
 import { Layout } from "./components/Layout";
 import { InputForm } from "./components/InputForm";
 import { PreviewPane } from "./components/PreviewPane";
-import { Watermark } from "./components/Watermark";
 import { InvoiceData, LineItem } from "./components/InvoicePreview";
 import {
   exportToPdf,
@@ -49,7 +48,7 @@ function App() {
     taxType: "taxable",
     lineItems: emptyLineItems,
     invoiceNumber: generateRandomInvoiceNumber(),
-    sellerStampImage: "/stamp.png", // Placeholder, user needs to place image in public folder
+    sellerStampImage: "/stamp.svg",
   });
 
   const [isExporting, setIsExporting] = useState(false);
@@ -88,7 +87,7 @@ function App() {
       }
     } catch (err) {
       console.error("Export failed:", err);
-      showToast("匯出失敗");
+      showToast(`匯出失敗: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setIsExporting(false);
     }
@@ -100,12 +99,18 @@ function App() {
     try {
       const invoiceElement = document.getElementById("invoice-preview");
       if (invoiceElement) {
-        const success = await copyToClipboard(invoiceElement);
-        showToast(success ? "已複製到剪貼簿" : "複製失敗");
+        const result = await copyToClipboard(invoiceElement);
+        if (result === 'copied') {
+          showToast("已複製到剪貼簿");
+        } else if (result === 'downloaded') {
+          showToast("已下載為 PNG 圖片");
+        } else {
+          showToast("複製失敗");
+        }
       }
     } catch (err) {
       console.error("Copy failed:", err);
-      showToast("複製失敗");
+      showToast(`複製失敗: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       setIsExporting(false);
     }
@@ -138,7 +143,7 @@ function App() {
       }
       preview={
         <div
-          className="relative group w-full h-full flex justify-center"
+          className="relative group w-full h-full flex items-center justify-center"
           ref={invoiceRef}
         >
           {/* Toast Notification */}
@@ -149,8 +154,6 @@ function App() {
           )}
 
           <PreviewPane data={formData} />
-
-          <Watermark />
         </div>
       }
     />

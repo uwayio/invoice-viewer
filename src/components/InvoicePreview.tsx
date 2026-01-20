@@ -64,95 +64,179 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({ data }) => {
     return digit === " " ? "" : digit;
   };
 
-  const cellBase = "border border-black px-1 py-0.5 text-center text-xs";
-  const headerCell = `${cellBase} bg-gray-50 font-medium`;
+  const cellStyle: React.CSSProperties = {
+    border: '1px solid black',
+    padding: '2px 4px',
+    textAlign: 'center',
+    fontSize: '12px',
+    verticalAlign: 'middle',
+  };
+  const headerStyle: React.CSSProperties = {
+    ...cellStyle,
+    backgroundColor: '#f9fafb',
+    fontWeight: 500,
+  };
 
   return (
     <div
       id="invoice-preview"
-      className="bg-white w-[19cm] h-[10.9cm] text-black text-xs p-2 box-border flex flex-col"
-      style={{ fontFamily: '"Noto Sans TC", "Microsoft JhengHei", sans-serif' }}
+      style={{
+        backgroundColor: 'white',
+        width: '19cm',
+        height: '10.9cm',
+        color: 'black',
+        fontSize: '12px',
+        padding: '8px',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        fontFamily: '"Noto Sans TC", "Microsoft JhengHei", sans-serif',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
     >
-      {/* Header Row - Invoice Number, Title, Date */}
-      <div className="flex items-start justify-between mb-1">
-        <div className="text-sm font-mono tracking-wider">
-          {data.invoiceNumber}
-        </div>
-        <div className="text-center flex-1">
-          <div className="text-base font-bold tracking-[0.3em]">
-            統 一 發 票（三 聯 式）
+      {/* Diagonal Watermark */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%) rotate(-30deg)',
+          pointerEvents: 'none',
+          userSelect: 'none',
+          zIndex: 10,
+          opacity: 0.08,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        <div
+          style={{
+            color: '#dc2626',
+            textAlign: 'center',
+          }}
+        >
+          <div
+            style={{
+              fontSize: '72px',
+              fontWeight: 900,
+              letterSpacing: '0.3em',
+              lineHeight: 1,
+            }}
+          >
+            樣本
           </div>
-          <div className="text-xs">{invoicePeriod}</div>
-        </div>
-        <div className="text-xs text-right">
-          中華民國{rocDate.year}年{rocDate.month}月{rocDate.day}日
+          <div
+            style={{
+              fontSize: '24px',
+              fontWeight: 700,
+              letterSpacing: '0.5em',
+              marginTop: '8px',
+            }}
+          >
+            SAMPLE
+          </div>
         </div>
       </div>
+
+      {/* Header Row - Invoice Number, Title, Date */}
+      <table style={{ width: '100%', marginBottom: '4px' }}>
+        <tbody>
+          <tr>
+            <td style={{ width: '20%', fontSize: '14px', fontFamily: 'monospace', letterSpacing: '0.05em', textAlign: 'left', verticalAlign: 'top' }}>
+              {data.invoiceNumber}
+            </td>
+            <td style={{ width: '60%', textAlign: 'center', verticalAlign: 'top' }}>
+              <div style={{ fontSize: '16px', fontWeight: 'bold', letterSpacing: '0.3em' }}>
+                統 一 發 票（三 聯 式）
+              </div>
+              <div style={{ fontSize: '12px' }}>{invoicePeriod}</div>
+            </td>
+            <td style={{ width: '20%', fontSize: '12px', textAlign: 'right', verticalAlign: 'top' }}>
+              中華民國{rocDate.year}年{rocDate.month}月{rocDate.day}日
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       {/* Buyer Info Row - Above the table */}
-      <div className="flex text-xs mb-1 gap-4">
-        <div className="flex items-center">
-          <span className="font-medium mr-1">買受人:</span>
-          <span>{data.buyerName}</span>
-        </div>
-        <div className="flex items-center">
-          <span className="font-medium mr-1">統一編號:</span>
-          <div className="flex">
-            {taxIdDigits.map((digit, i) => (
-              <div
-                key={i}
-                className="w-4 h-4 border border-black flex items-center justify-center mx-px font-mono text-xs"
-              >
-                {digit !== " " ? digit : ""}
-              </div>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center flex-1">
-          <span className="font-medium mr-1">地址:</span>
-          <span>{data.buyerAddress}</span>
-          <span className="ml-auto text-gray-400 text-xs">可省略</span>
-        </div>
-      </div>
+      <table style={{ width: '100%', fontSize: '12px', marginBottom: '4px' }}>
+        <tbody>
+          <tr>
+            <td style={{ textAlign: 'left', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+              <span style={{ fontWeight: 500, marginRight: '4px' }}>買受人:</span>
+              <span>{data.buyerName}</span>
+            </td>
+            <td style={{ textAlign: 'left', paddingLeft: '16px', verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
+              <span style={{ fontWeight: 500, marginRight: '4px' }}>統一編號:</span>
+              {taxIdDigits.map((digit, i) => (
+                <span
+                  key={i}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '13px',
+                    height: '13px',
+                    border: '1px solid black',
+                    marginLeft: '1px',
+                    marginRight: '1px',
+                    verticalAlign: 'middle',
+                    fontFamily: 'monospace',
+                    fontSize: '9px',
+                  }}
+                >
+                  {digit !== " " ? digit : ""}
+                </span>
+              ))}
+            </td>
+            <td style={{ textAlign: 'left', verticalAlign: 'middle', paddingLeft: '16px' }}>
+              <span style={{ fontWeight: 500, marginRight: '4px' }}>地址:</span>
+              <span>{data.buyerAddress}</span>
+            </td>
+            <td style={{ textAlign: 'right', verticalAlign: 'middle', color: '#9ca3af', fontSize: '12px', whiteSpace: 'nowrap' }}>
+              可省略
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       {/* Main Table */}
-      <table className="w-full border-collapse border border-black flex-1">
+      <table style={{ width: '100%', borderCollapse: 'collapse', border: '1px solid black', flex: 1 }}>
         <tbody>
           {/* Items Header */}
-          <tr className="bg-gray-50">
-            <td className={`${headerCell} w-[40%]`}>品　　名</td>
-            <td className={`${headerCell} w-[10%]`}>數量</td>
-            <td className={`${headerCell} w-[12%]`}>單價</td>
-            <td className={`${headerCell} w-[15%]`}>金　　額</td>
-            <td className={`${headerCell} w-[23%]`}>備　　註</td>
+          <tr>
+            <td style={{ ...headerStyle, width: '40%' }}>品　　名</td>
+            <td style={{ ...headerStyle, width: '10%' }}>數量</td>
+            <td style={{ ...headerStyle, width: '12%' }}>單價</td>
+            <td style={{ ...headerStyle, width: '15%' }}>金　　額</td>
+            <td style={{ ...headerStyle, width: '23%' }}>備　　註</td>
           </tr>
 
           {/* 4 Item Rows */}
           {displayItems.map((item, index) => {
             const amount = calculateAmount(item.quantity, item.unitPrice);
             return (
-              <tr key={index} className="h-6">
-                <td className={`${cellBase} text-left pl-2`}>
+              <tr key={index} style={{ height: '24px' }}>
+                <td style={{ ...cellStyle, textAlign: 'left', paddingLeft: '8px' }}>
                   {item.name ||
                     (index === 0 && !item.name ? (
-                      <span className="text-blue-500">請填上品項</span>
+                      <span style={{ color: '#3b82f6' }}>請填上品項</span>
                     ) : (
                       ""
                     ))}
                 </td>
-                <td className={`${cellBase} text-right pr-1`}>
+                <td style={{ ...cellStyle, textAlign: 'right', paddingRight: '4px', fontFamily: 'monospace' }}>
                   {item.quantity}
                 </td>
-                <td className={`${cellBase} text-right pr-1`}>
+                <td style={{ ...cellStyle, textAlign: 'right', paddingRight: '4px', fontFamily: 'monospace' }}>
                   {item.unitPrice &&
                     formatNumber(parseFloat(item.unitPrice) || 0)}
                 </td>
-                <td className={`${cellBase} text-right pr-1`}>
+                <td style={{ ...cellStyle, textAlign: 'right', paddingRight: '4px', fontFamily: 'monospace' }}>
                   {amount > 0 && formatNumber(amount)}
                 </td>
                 {index === 0 ? (
-                  <td className={`${cellBase} relative`} rowSpan={4}>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-xs"></div>
+                  <td style={{ ...cellStyle }} rowSpan={4}>
                   </td>
                 ) : null}
               </tr>
@@ -161,20 +245,20 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({ data }) => {
 
           {/* Sales Total */}
           <tr>
-            <td className={`${headerCell}`}>銷售額合計</td>
-            <td className={`${cellBase} text-right pr-2 font-mono`} colSpan={3}>
+            <td style={headerStyle}>銷售額合計</td>
+            <td style={{ ...cellStyle, textAlign: 'right', paddingRight: '8px', fontFamily: 'monospace' }} colSpan={3}>
               {formatNumber(salesTotal)}
             </td>
-            <td className={`${cellBase}`} rowSpan={2}>
-              <div className="text-gray-500 mb-1">營業人蓋用統一發票專用章</div>
+            <td style={{ ...cellStyle, textAlign: 'center', verticalAlign: 'middle' }} rowSpan={2}>
+              <div style={{ color: '#6b7280', marginBottom: '4px', fontSize: '10px' }}>營業人蓋用統一發票專用章</div>
               {data.sellerStampImage ? (
                 <img
                   src={data.sellerStampImage}
                   alt="Seller Stamp"
-                  className="max-w-[80px] max-h-[60px] object-contain"
+                  style={{ maxWidth: '80px', maxHeight: '60px', margin: '0 auto', display: 'block' }}
                 />
               ) : (
-                <div className="text-blue-500 font-bold text-center opacity-60 rotate-[-5deg]">
+                <div style={{ color: '#3b82f6', fontWeight: 'bold', textAlign: 'center', opacity: 0.6, transform: 'rotate(-5deg)' }}>
                   記得要蓋
                   <br />
                   發票章唷
@@ -185,80 +269,107 @@ export const InvoicePreview: React.FC<InvoicePreviewProps> = ({ data }) => {
 
           {/* Tax Row */}
           <tr>
-            <td className={`${headerCell}`}>營業稅</td>
-            <td className={`${cellBase} p-0`} colSpan={2}>
-              <div className="flex h-full">
-                <div className="flex-1 border-r border-black">
-                  <div className="text-xs border-b border-black py-px">
-                    應稅
-                  </div>
-                  <div className="py-px font-mono">
-                    {data.taxType === "taxable" && formatNumber(taxAmount)}
-                  </div>
-                </div>
-                <div className="flex-1 border-r border-black">
-                  <div className="text-xs border-b border-black py-px">
-                    零稅率
-                  </div>
-                  <div className="py-px">
-                    {data.taxType === "zeroRate" && "✓"}
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <div className="text-xs border-b border-black py-px">
-                    免稅
-                  </div>
-                  <div className="py-px">
-                    {data.taxType === "taxExempt" && "✓"}
-                  </div>
-                </div>
-              </div>
+            <td style={headerStyle}>營業稅</td>
+            <td style={{ ...cellStyle, padding: 0 }} colSpan={2}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <tbody>
+                  <tr>
+                    <td style={{ fontSize: '12px', textAlign: 'center', borderBottom: '1px solid black', borderRight: '1px solid black', padding: '2px', width: '33.3%', verticalAlign: 'middle' }}>應稅</td>
+                    <td style={{ fontSize: '12px', textAlign: 'center', borderBottom: '1px solid black', borderRight: '1px solid black', padding: '2px', width: '33.3%', verticalAlign: 'middle' }}>零稅率</td>
+                    <td style={{ fontSize: '12px', textAlign: 'center', borderBottom: '1px solid black', padding: '2px', width: '33.3%', verticalAlign: 'middle' }}>免稅</td>
+                  </tr>
+                  <tr>
+                    <td style={{ textAlign: 'center', borderRight: '1px solid black', padding: '2px', fontFamily: 'monospace', verticalAlign: 'middle' }}>
+                      {data.taxType === "taxable" && formatNumber(taxAmount)}
+                    </td>
+                    <td style={{ textAlign: 'center', borderRight: '1px solid black', padding: '2px', verticalAlign: 'middle' }}>
+                      {data.taxType === "zeroRate" && "✓"}
+                    </td>
+                    <td style={{ textAlign: 'center', padding: '2px', verticalAlign: 'middle' }}>
+                      {data.taxType === "taxExempt" && "✓"}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </td>
-            <td className={`${cellBase} text-right pr-2 font-mono font-bold`}>
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-normal">總計</span>
-                <span>{formatNumber(grandTotal)}</span>
-              </div>
+            <td style={{ ...cellStyle, padding: '2px 8px' }}>
+              <table style={{ width: '100%' }}>
+                <tbody>
+                  <tr>
+                    <td style={{ textAlign: 'left', fontSize: '12px', verticalAlign: 'middle' }}>總計</td>
+                    <td style={{ textAlign: 'right', fontFamily: 'monospace', fontWeight: 'bold', verticalAlign: 'middle' }}>{formatNumber(grandTotal)}</td>
+                  </tr>
+                </tbody>
+              </table>
             </td>
           </tr>
 
           {/* Chinese Numerals Row */}
           <tr>
-            <td className={`${headerCell} text-xs leading-tight`}>
+            <td style={{ ...headerStyle, fontSize: '12px', lineHeight: '1.2' }}>
               總計新臺幣
               <br />
               (中文大寫)
             </td>
-            <td className={`${cellBase} p-0`} colSpan={4}>
-              <div className="flex">
-                {["億", "仟", "佰", "拾", "萬", "仟", "佰", "拾", "元"].map(
-                  (label, i) => (
-                    <div
-                      key={label + i}
-                      className="flex-1 border-r border-black last:border-r-0"
-                    >
-                      <div className="text-xs border-b border-black py-px">
-                        {label}
-                      </div>
-                      <div className="py-px font-mono">
-                        {getDigitAtPosition(grandTotal, 8 - i)}
-                      </div>
-                    </div>
-                  ),
-                )}
-              </div>
+            <td style={{ ...cellStyle, padding: 0 }} colSpan={4}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <tbody>
+                  <tr>
+                    {["億", "仟", "佰", "拾", "萬", "仟", "佰", "拾", "元"].map(
+                      (label, i) => (
+                        <td
+                          key={label + i}
+                          style={{
+                            borderRight: i < 8 ? '1px solid black' : 'none',
+                            textAlign: 'center',
+                            fontSize: '12px',
+                            borderBottom: '1px solid black',
+                            padding: '2px',
+                            width: '11.1%',
+                            verticalAlign: 'middle',
+                          }}
+                        >
+                          {label}
+                        </td>
+                      ),
+                    )}
+                  </tr>
+                  <tr>
+                    {["億", "仟", "佰", "拾", "萬", "仟", "佰", "拾", "元"].map(
+                      (label, i) => (
+                        <td
+                          key={`digit-${i}`}
+                          style={{
+                            borderRight: i < 8 ? '1px solid black' : 'none',
+                            textAlign: 'center',
+                            padding: '2px',
+                            fontFamily: 'monospace',
+                            verticalAlign: 'middle',
+                          }}
+                        >
+                          {getDigitAtPosition(grandTotal, 8 - i)}
+                        </td>
+                      ),
+                    )}
+                  </tr>
+                </tbody>
+              </table>
             </td>
           </tr>
         </tbody>
       </table>
 
       {/* Footer */}
-      <div className="flex justify-between text-xs text-gray-500 mt-0.5">
-        <div>
-          ※應稅、零稅率、免稅之銷售額應分別開立統一發票，並應於各該欄打「✓」。
-        </div>
-        <div>第＿聯＿＿聯</div>
-      </div>
+      <table style={{ width: '100%', fontSize: '12px', color: '#6b7280', marginTop: '2px' }}>
+        <tbody>
+          <tr>
+            <td style={{ textAlign: 'left', verticalAlign: 'middle' }}>
+              ※應稅、零稅率、免稅之銷售額應分別開立統一發票，並應於各該欄打「✓」。
+            </td>
+            <td style={{ textAlign: 'right', verticalAlign: 'middle' }}>第＿聯＿＿聯</td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   );
 };
